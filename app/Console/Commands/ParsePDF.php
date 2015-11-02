@@ -46,15 +46,17 @@ class ParsePDF extends Command
         $pages  = $pdf->getPages();
 
         foreach ($pages as $page) {
-            $p = new ParsePage($page->getText());
+            $p = new ParsePage($page->getArray());
             $products = $p->parseProducts();
 
-            Product::insert($products);
-            /* foreach ($products as $product) { */
-            /*     var_dump($product); */
-            /*     die(); */
-            /* } */
+            foreach ($products as $product) {
+                $p = Product::whereCode($product['code'])->first();
+                if (is_null($p)) {
+                    $p = new Product;
+                }
+                $p->fill($product);
+                $p->save();
+            }
         }
-
     }
 }

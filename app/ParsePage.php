@@ -16,12 +16,11 @@ class ParsePage
         $products = [];
         $lastCategory = null;
 
-        foreach ($this->getLines() as $line) {
-            $words = $this->splitLinesIntoWords($line) ;
+        foreach ($this->getLines() as $words) {
             if ($this->isProduct($words)) {
                 $products[] = $this->parseProduct($words, $lastCategory);
-            } else {
-                $lastCategory = $line;
+            } elseif ($this->isCategory($words)) {
+                $lastCategory = $words[0];
             }
         }
         return $products;
@@ -29,7 +28,7 @@ class ParsePage
 
     private function getLines()
     {
-        return explode("\n", $this->content);
+        return $this->content;
     }
 
     private function splitLinesIntoWords($line)
@@ -39,10 +38,17 @@ class ParsePage
 
     private function isProduct($words)
     {
-        return is_numeric($words[0]);
+        return is_numeric($words[0]) && count($words) > 3;
     }
 
-    private function parseProduct($words, $lastCategory)
+    private function isCategory($words)
+    {
+        return count($words) == 1
+            && ! starts_with($words[0], 'Listado')
+            && ! starts_with($words[0], '(Actualizada');
+    }
+
+    private function parseProduct($words, $lastCategory = null)
     {
         $p = [];
 
@@ -51,25 +57,16 @@ class ParsePage
         $p['brand'] = $words[1];
 
         // Price is last element of the line. Also remove $ sign
-        $p['price'] = substr($words[ count($words)- 1], 1);
+        $p['price'] = $words[4];
 
         // Second last element of the line
-        $p['quantity'] = (int)$words[ count($words) - 2];
+        $p['quantity'] = (int)$words[3];
 
         // Needs to improved!
         $p['category'] = $lastCategory;
 
         // Name are the remaining words
-        $name = '' ;
-        foreach (range(2, count($words) - 2) as $index) {
-            if (isset($words[$index])) {
-                $name = $name . ' ' . $words[$index];
-            } else {
-                echo 'No esta indice 2 \n';
-                var_dump($words);
-            }
-        }
-        $p['name'] = $name;
+        $p['name'] = $words[2];
 
         return $p;
     }
