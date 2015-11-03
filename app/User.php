@@ -40,6 +40,6 @@ class User extends Model implements AuthenticatableContract,
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_user', 'user_id', 'product_code')->orderBy('quantity');
+        return $this->belongsToMany(Product::class, 'product_user', 'user_id', 'product_code')->orderBy('priority', 'desc');
     }
 }

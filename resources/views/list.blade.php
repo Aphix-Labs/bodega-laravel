@@ -103,7 +103,8 @@
         $(document).ready(function(){
             $('#table').DataTable({
                 dom: 'ft',
-                bPaginate: false
+                bPaginate: false,
+                ordering: false
             });
         });
     </script>
