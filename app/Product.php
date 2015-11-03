@@ -14,4 +14,8 @@ class Product extends Model
         'quantity',
         'price',
     ];
+
+    protected $primaryKey = 'code';
+
+    protected $hidden = ['created_at', 'updated_at'];
 }

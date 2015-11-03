@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Goutte\Client;
 use App\ParsePage;
 use App\Product;
 
@@ -39,9 +40,13 @@ class ParsePDF extends Command
      */
     public function handle()
     {
+        // parse url
+        $url = $this->parseURLPDF();
+
         // Parse pdf file and build necessary objects.
         $parser = new \Smalot\PdfParser\Parser();
-        $pdf    = $parser->parseFile(app_path('Sample/pcfactory_lista_ventadebodega'));
+
+        $pdf    = $parser->parseFile($url);
 
         $pages  = $pdf->getPages();
 
@@ -58,5 +63,16 @@ class ParsePDF extends Command
                 $p->save();
             }
         }
+    }
+
+    private function parseURLPDF()
+    {
+        $client = new Client();
+
+        $crawler = $client->request('GET', 'https://www.pcfactory.cl/ventabodega');
+
+        $href = $crawler->filter('a[class="main_link1"][href]')->first()->attr('href');
+
+        return 'https://www.pcfactory.cl/' . $href;
     }
 }
